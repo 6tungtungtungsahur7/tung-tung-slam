@@ -1,0 +1,10 @@
+---
+description: Verify changes with repo checks; keep diffs small; copy existing files
+alwaysApply: true
+---
+
+Before finishing any change, run the checks listed in AGENTS.md and fix what they report.
+
+Keep the diff limited to the task. Do not refactor unrelated code.
+
+Point to an existing file in the repo instead of describing a new pattern.

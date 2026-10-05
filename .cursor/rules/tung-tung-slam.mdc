@@ -1,0 +1,24 @@
+---
+description: How to work on Tung Tung Slam (one-tap baseball streak game, plain JS + three.js r128, no bundler)
+alwaysApply: true
+---
+
+Read HANDOFF.md before any non-trivial change; README.md has the module map and the "what to edit" table.
+
+Workflow
+- Edit files in src/ only. index.html is generated: run `node build.js` (artifact build) or `npm run dev` (offline build + LAN server) after every change.
+- Run `npm run test:fast` after rules, awards or config changes; `node tests/sweep.js` after UI changes; `node tests/frame.js` after anything that moves the ball or the camera; `node tests/play.js flow` before calling a feature done. Tests take minutes; run them in the background and read tests/out/*.log.
+- Game-rule outcomes live in src/rules.js and src/awards.js and must stay pure (no DOM, no three.js) so tests/sim.js can run them in Node. Tuning numbers live in src/config.js; do not scatter magic numbers into game.js or payoff.js.
+
+Conventions
+- Per-frame code allocates nothing: use the scratch vectors `sv()`, `svc()` after `scrReset()` (src/util.js); never keep a scratch vector across frames.
+- Every tappable control is at least 44x40 CSS px; sheets at most 84% of the width or 300 px; pages 340 px with an X. tests/layout.js enforces this on every frame of every play test; new overlays need an exit the sweep test can find (an .xbtn, a .btn.gray, or one of the known ids).
+- One voice at a time: banners and calls are the game's voice (navy/gold), speech bubbles are characters (cream), the LED board is the stadium. Do not add a fourth box style.
+- Rewards are never paid directly: queue them with `payCaps()` and let `claimNow()` pay. Coins are paid immediately via `earnCoins()`.
+- Difficulty follows the streak number only. Never add rules that punish good players (no jumps on knockout, no speed from skill).
+- Only IP Studios characters may appear: Tung Tung Tung Sahur, Chimpanzini Bananini, Lirilì Larilà, Brr Brr Patapim, Cappuccino Assassino. Never add Tralalero Tralala or Bombardiro Crocodilo. Ballerina Cappuccina only after the owner confirms clearance.
+- Keep `CFG.TEST_REPLAY` true during development; it must be false for any public build.
+- Comments explain why, in plain sentences; no decorative comment banners beyond the existing file headers.
+
+Style of answers to the owner
+- He is not a developer. Propose and simulate before implementing; ask questions as a numbered multiple-choice list; call out contradictions with earlier decisions; end recommendations with a consequence pass; dense bullets, no em dashes.

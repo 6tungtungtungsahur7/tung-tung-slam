@@ -1,0 +1,407 @@
+/* Layout: one portrait stage. Lobby = top bar, hero batter, event cards, one Play button, bottom tabs.
+   In play = scorebug and pause at the top, nothing else: feedback appears at the target. Single ballpark look by choice, no light/dark switch. */
+:root{
+  /* Tung Tung Slam: espresso, cream, tomato and basil, gold for the streak */
+  --ink:#1a0f08; --deep:#3b2314; --deep2:#4f301b; --chalk:#fff6e0; --night:#0d0804;
+  --gold:#ffc83d; --gold-d:#c98a00; --hot:#e8402a; --hot-d:#a52614; --go:#4fc46a; --go-d:#227d38; --gum:#ff6a3d; --sky:#4fc46a; --sky-d:#227d38; --gray:#9a8c7c; --gray-d:#5e5248;
+  --mute:rgba(255,246,224,.72);
+  --display:"Bungee","Impact","Arial Black",sans-serif;
+  --data:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --ol:0 2px 0 var(--ink),2px 0 0 var(--ink),-2px 0 0 var(--ink),0 -2px 0 var(--ink),2px 2px 0 var(--ink),-2px 2px 0 var(--ink),2px -2px 0 var(--ink),-2px -2px 0 var(--ink),0 4px 0 var(--ink);
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--night);color:var(--chalk);font-family:var(--data);font-size:17px;font-weight:700;overflow:hidden}
+button{font-family:inherit;color:inherit}
+svg{display:block;flex:none}
+#stage{position:relative;height:100%;max-width:520px;margin:0 auto;overflow:hidden;background:var(--ink);
+  touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+#gl{position:absolute;inset:0;width:100%;height:100%;display:block}
+#vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 58%,rgba(11,7,22,0) 42%,rgba(11,7,22,.9) 100%);opacity:.35}
+#vig.beat{animation:beat .85s ease-in-out infinite}
+@keyframes beat{0%,100%{filter:brightness(1)}12%{filter:brightness(1.9)}24%{filter:brightness(1)}36%{filter:brightness(1.6)}}
+#flash{position:absolute;inset:0;background:var(--chalk);opacity:0;pointer-events:none}
+.lbl{font-size:12px;letter-spacing:.12em;color:var(--mute);text-transform:uppercase;white-space:nowrap}
+.ol{text-shadow:var(--ol)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--chalk);outline-offset:2px}
+
+/* buttons: physical, one colour per job */
+.btn{--bg:var(--gold);--ed:var(--gold-d);position:relative;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:50px;padding:8px 14px;
+  font-family:var(--display);font-size:20px;line-height:1;color:var(--ink);background:var(--bg);border:3px solid var(--ink);border-radius:14px;cursor:pointer;
+  box-shadow:0 5px 0 var(--ed),0 5px 0 3px var(--ink),inset 0 3px 0 rgba(255,255,255,.45);margin-bottom:5px}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--ed),0 1px 0 3px var(--ink),inset 0 3px 0 rgba(255,255,255,.3)}
+.btn small{display:block;font:700 13px var(--data);letter-spacing:.1em;margin-top:3px}
+.btn.xl{min-height:72px;font-size:34px;border-radius:18px}
+.sheet .btn.xl{min-height:58px;font-size:clamp(18px,6vw,24px);border-radius:16px}
+#reviveBtn{font-size:clamp(14px,4.6vw,18px);gap:6px;padding:8px 8px}
+#reviveBtn small{font-size:12px}
+.btn.blue{--bg:var(--sky);--ed:var(--sky-d)}
+.btn.red{--bg:var(--hot);--ed:var(--hot-d)}
+.btn.green{--bg:var(--go);--ed:var(--go-d)}
+.btn.gray{--bg:var(--gray);--ed:var(--gray-d);font-size:16px;min-height:44px}
+.btn:disabled{cursor:default}
+.btn{white-space:nowrap}
+.rbtn{--bg:var(--sky);--ed:var(--sky-d);pointer-events:auto;width:48px;height:48px;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;background:var(--bg);
+  border:3px solid var(--ink);border-radius:14px;cursor:pointer;box-shadow:0 4px 0 var(--ed),0 4px 0 3px var(--ink),inset 0 3px 0 rgba(255,255,255,.4)}
+.rbtn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ed),0 1px 0 3px var(--ink)}
+.rbtn.gold{--bg:var(--gold);--ed:var(--gold-d);color:var(--ink)}
+.coin{display:inline-block;width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff3b0,var(--gold) 55%,var(--gold-d));border:3px solid var(--ink);flex:none}
+
+/* in-play HUD */
+#pauseBtn{position:relative;z-index:30}
+/* home run streak: a tag that hangs under the scorebug, well clear of the ball's path */
+#hrTag{--heat:#ff8a2a;position:absolute;left:14px;top:64px;display:flex;align-items:center;gap:5px;padding:4px 10px 4px 7px;background:var(--ink);color:var(--heat);
+  border:2px solid var(--heat);border-radius:10px;transform:rotate(-3deg);transform-origin:left top;pointer-events:none;box-shadow:0 3px 0 rgba(22,12,46,.6)}
+#hrTag b{font-family:var(--display);font-size:20px;line-height:1;color:var(--chalk)}
+#hrTag em{font-style:normal;font-size:12px;letter-spacing:.1em;white-space:nowrap}
+#hrTag.tick{animation:hrtick .25s ease-out}
+#hrTag.tier{animation:hrtier .6s cubic-bezier(.2,1.6,.4,1)}
+#hrTag.drop{animation:hrdrop .45s ease-in forwards}
+@keyframes hrtick{0%{transform:rotate(-3deg) scale(1.18)}100%{transform:rotate(-3deg) scale(1)}}
+@keyframes hrtier{0%{transform:rotate(-12deg) scale(2);opacity:0}100%{transform:rotate(-3deg) scale(1);opacity:1}}
+@keyframes hrdrop{0%{transform:rotate(-3deg)}100%{transform:rotate(-3deg) translateY(46px);opacity:0}}
+#hud{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:10px 12px;pointer-events:none}
+.bug{display:flex;flex:none;background:var(--deep);border:3px solid var(--ink);border-radius:14px;overflow:hidden;box-shadow:0 4px 0 var(--ink)}
+.bug>div{padding:6px 12px;display:flex}
+.bug .bl{flex-direction:column;justify-content:center;gap:4px;min-width:110px}
+.bug .br{background:var(--gold);color:var(--ink);align-items:center;gap:8px;transition:background .3s}
+.bug.gold{box-shadow:0 4px 0 var(--ink),0 0 0 3px var(--gold),0 0 18px 4px rgba(255,200,61,.7)}
+.bug.gold .br{background:linear-gradient(120deg,#fff3b0,var(--gold) 40%,#ffe58a 60%,var(--gold))}
+.bug .br .lbl{color:var(--ink)}
+#vs{font-size:14px;letter-spacing:.08em;white-space:nowrap}
+#hStreak{font-family:var(--display);font-size:32px;line-height:1;font-variant-numeric:tabular-nums}
+#hStreak.long{font-size:24px}
+#hStreak.bump{animation:bump .28s ease-out}
+@keyframes bump{0%{transform:scale(1.16);color:#fff}100%{transform:scale(1)}}
+#hStreak.long.bump{animation-name:bumpflat}
+@keyframes bumpflat{0%{color:#fff}100%{color:inherit}}
+.bug .dots{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-height:9px}
+/* strikes: three red squares on their own row that fill up; the run ends on the third */
+#ks{display:flex;gap:2px}
+#ks:empty{display:none}
+#ks i{display:flex;color:rgba(255,246,224,.28)}
+#ks i svg{stroke-width:3.4}
+#ks i.on{color:var(--hot);filter:drop-shadow(0 0 3px rgba(232,64,42,.7))}
+#ks i.last{animation:klast .6s ease-in-out infinite alternate}
+@keyframes klast{0%{color:var(--hot)}100%{color:#fff}}
+#pips{display:flex;gap:3px;min-height:8px}
+#pips i{width:9px;height:9px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 1.5px var(--ink)}
+#pips i.off{background:rgba(255,246,224,.2)}
+.meter{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center}
+.bar{position:relative;height:14px;border-radius:7px;background:rgba(255,246,224,.12)}
+.bar i{position:absolute;top:0;bottom:0;left:50%;transform:translateX(-50%);border-radius:7px}
+.bar .zf{background:rgba(255,246,224,.24)}
+.bar .zh{background:rgba(255,246,224,.62)}
+.bar .zp{background:var(--gold);border-radius:3px}
+.bar .mk{width:6px;top:-5px;bottom:-5px;background:var(--hot);box-shadow:0 0 0 2px var(--ink);border-radius:3px}
+
+/* timing cue: target circle and closing ring. The target pulses gold / white / red on a swing. */
+#cue{position:absolute;inset:0;pointer-events:none}
+#tgt,#ring{position:absolute;transform:translate(-50%,-50%);border-radius:50%;box-sizing:border-box}
+#tgt{border:4px solid var(--chalk);box-shadow:0 0 0 2px rgba(22,12,46,.7),inset 0 0 0 2px rgba(22,12,46,.5);background:rgba(255,246,224,.1)}
+#tgt.now{animation:now .22s ease-out}
+@keyframes now{0%{background:var(--gold);box-shadow:0 0 0 2px var(--ink),0 0 26px 10px rgba(255,200,61,.9)}100%{background:rgba(255,246,224,.1)}}
+#ring{border:4px solid var(--chalk);box-shadow:0 0 0 2px rgba(22,12,46,.6),inset 0 0 0 2px rgba(22,12,46,.6)}
+#ring.late{border-color:var(--hot)}
+#tgt.good{animation:pgood .26s ease-out}
+#tgt.ok{animation:pok .26s ease-out}
+#tgt.bad{animation:pbad .26s ease-out}
+@keyframes pgood{0%{background:var(--gold);border-color:var(--gold);transform:translate(-50%,-50%) scale(1.5)}100%{background:rgba(255,200,61,0);transform:translate(-50%,-50%) scale(1);opacity:0}}
+@keyframes pok{0%{background:var(--chalk);transform:translate(-50%,-50%) scale(1.25)}100%{background:rgba(255,246,224,0);transform:translate(-50%,-50%) scale(1);opacity:0}}
+@keyframes pbad{0%{background:var(--hot);border-color:var(--hot);transform:translate(-50%,-50%) scale(1.25)}100%{background:rgba(255,90,54,0);transform:translate(-50%,-50%) scale(1);opacity:0}}
+
+#tap{position:absolute;transform:translate(-50%,-50%);border-radius:50%;box-sizing:border-box;border:4px solid var(--chalk);opacity:0;pointer-events:none}
+#tap.show{animation:tapfade .55s ease-out forwards}
+#tap.good{border-color:var(--gold)}
+#tap.bad{border-color:var(--hot)}
+@keyframes tapfade{0%{opacity:1}60%{opacity:.9}100%{opacity:0}}
+#verdict{position:absolute;transform:translate(-50%,0);white-space:nowrap;font-family:var(--display);font-size:19px;line-height:1;text-shadow:var(--ol);pointer-events:none;animation:verd .18s ease-out}
+#verdict.good{color:var(--gold);font-size:22px}
+#verdict.bad{color:var(--hot)}
+#verdict.hint{font:700 14px var(--data);letter-spacing:.08em;color:var(--chalk);text-shadow:0 1px 0 var(--ink),0 0 6px var(--ink)}
+@keyframes verd{0%{opacity:0;transform:translate(-50%,6px) scale(.8)}100%{opacity:1;transform:translate(-50%,0) scale(1)}}
+
+#bubs{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+/* Speech: a voice in the park, never a piece of UI. The crowd mutters in small soft bubbles,
+   the pitcher talks in a proper comic bubble with a tail pointing at him. Navy and gold are
+   reserved for announcements from the game itself (#banner, #call). */
+.bub{position:absolute;transform:translate(-50%,-100%);max-width:56%;padding:5px 9px;border-radius:11px;font:600 13px/1.15 var(--data);
+  background:rgba(255,246,224,.86);color:#3a3350;animation:bub 2.6s ease-out forwards;text-align:center}
+.bub.out{transition:opacity .15s;opacity:0 !important;animation:none}
+.bub.p{max-width:64%;padding:8px 13px 9px;border-radius:14px;font:700 italic 16px/1.15 var(--data);background:var(--chalk);color:var(--ink);
+  border:3px solid var(--ink);box-shadow:0 3px 0 var(--ink);animation-duration:3s}
+.bub.p::after,.bub.p::before{content:"";position:absolute;left:50%;top:100%;border:9px solid transparent;border-top-color:var(--ink);border-bottom:0;transform:translateX(-50%)}
+.bub.p::after{border-width:6px;border-top-color:var(--chalk);margin-top:-3px}
+@keyframes bub{0%{opacity:0;transform:translate(-50%,-80%) scale(.6)}8%{opacity:1;transform:translate(-50%,-100%) scale(1.06)}14%{transform:translate(-50%,-100%) scale(1)}85%{opacity:1}100%{opacity:0;transform:translate(-50%,-115%)}}
+/* coins and slices float up from under the scorebug as they are earned */
+#gains3d{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.gain{position:absolute;display:flex;align-items:center;gap:4px;transform:translate(-100%,0);font-family:var(--display);font-size:15px;color:var(--gold);text-shadow:var(--ol);animation:gainup 1.25s ease-out forwards;white-space:nowrap}
+.gain .coin{width:16px;height:16px;border-width:2px}
+.gain.pizza{color:var(--gum)}
+.gain.pizza svg{filter:drop-shadow(0 1px 0 var(--ink))}
+@keyframes gainup{0%{opacity:0;transform:translate(-100%,6px) scale(.7)}15%{opacity:1;transform:translate(-100%,0) scale(1.15)}30%{transform:translate(-100%,-4px) scale(1)}100%{opacity:0;transform:translate(-100%,-46px) scale(.95)}}
+/* performance readout, for phones that feel slow: Settings > Show performance numbers */
+#perf{position:absolute;left:8px;bottom:8px;margin:0;padding:6px 8px;background:rgba(0,0,0,.72);color:#9f9;font:11px/1.35 ui-monospace,Menlo,monospace;border-radius:8px;pointer-events:none;z-index:50;white-space:pre}
+/* the announcement bar: one line under the HUD when something is earned mid-run */
+#toast{position:absolute;left:50%;top:68px;transform:translateX(-50%);display:flex;align-items:center;gap:8px;max-width:78%;padding:6px 12px 6px 8px;background:var(--chalk);color:var(--ink);border:3px solid var(--ink);border-radius:12px;box-shadow:0 4px 0 var(--ink);pointer-events:none;white-space:nowrap}
+#toast .tk{font:700 10px var(--data);letter-spacing:.12em;background:var(--gold);border-radius:6px;padding:3px 5px;flex:none}
+#toast b{font-family:var(--display);font-size:14px;overflow:hidden;text-overflow:ellipsis}
+#toast em{font-style:normal;font:700 13px var(--data);color:var(--go-d);flex:none}
+#toast.in{animation:toastin .32s cubic-bezier(.2,1.5,.4,1)}
+#toast.out{animation:toastout .28s ease-in forwards}
+@keyframes toastin{0%{opacity:0;transform:translate(-50%,-26px)}100%{opacity:1;transform:translate(-50%,0)}}
+@keyframes toastout{0%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-22px)}}
+.chip.claim{background:var(--go);color:var(--ink);cursor:pointer;font:inherit;font-family:var(--display);font-size:16px;border:0;box-shadow:0 3px 0 var(--go-d)}
+.chip.claim .capi{color:var(--ink)}
+.chip.claim span{font:700 11px var(--data);letter-spacing:.08em}
+.chip.claim:active{transform:translateY(2px);box-shadow:0 1px 0 var(--go-d)}
+.chip.claim.done{background:var(--deep2);color:var(--chalk);box-shadow:none;pointer-events:none}
+.chip.claim.done .capi{color:var(--gum)}
+.award .claim{font:700 12px var(--data);letter-spacing:.08em;background:var(--go);color:var(--ink);border:2px solid var(--ink);border-radius:8px;padding:6px 9px;cursor:pointer;min-height:36px}
+.award.ready{box-shadow:0 0 0 3px var(--gold) inset}
+.plist.scroll{max-height:46vh;overflow-y:auto;touch-action:pan-y;margin:0 -4px;padding:0 4px}
+.tog .n{position:absolute;right:-6px;top:-8px;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:var(--hot);color:#fff;font:700 12px var(--data);display:flex;align-items:center;justify-content:center;border:2px solid var(--ink)}
+.tog{position:relative}
+#call{position:absolute;left:16px;right:16px;top:14%;text-align:center;pointer-events:none;opacity:0}
+#call b{display:block;font-family:var(--display);font-size:40px;line-height:1;text-wrap:balance;text-shadow:var(--ol)}
+#call span{display:block;margin-top:8px;letter-spacing:.1em;font-size:17px;text-shadow:var(--ol)}
+#call.show{animation:pop 1.1s ease-out forwards}
+#call.perfect b{color:var(--gold)}
+#call.bad b{color:var(--hot)}
+@keyframes pop{0%{opacity:0;transform:scale(.5)}12%{opacity:1;transform:scale(1.12)}22%{transform:scale(1)}78%{opacity:1}100%{opacity:0;transform:translateY(-14px)}}
+#dist{position:absolute;left:16px;right:16px;bottom:9%;text-align:center;pointer-events:none}
+#distLbl{font-family:var(--display);font-size:20px;color:var(--gold);text-shadow:var(--ol);margin-bottom:4px}
+#distN{font-family:var(--display);font-size:68px;line-height:.95;font-variant-numeric:tabular-nums;text-shadow:var(--ol)}
+#distN small{font-size:26px;margin-left:6px}
+#tier{font-family:var(--display);font-size:26px;color:var(--gold);margin-top:8px;opacity:0;text-wrap:balance;text-shadow:var(--ol)}
+#tier.on{animation:stamp .4s cubic-bezier(.2,1.6,.4,1) forwards}
+@keyframes stamp{0%{opacity:0;transform:scale(2.2) rotate(-6deg)}100%{opacity:1;transform:scale(1) rotate(-3deg)}}
+#banner{position:absolute;left:50%;top:84px;width:min(84%,320px);transform:translateX(-50%);padding:10px 14px;text-align:center;background:var(--deep);border:3px solid var(--ink);border-radius:14px;box-shadow:0 4px 0 var(--ink),0 0 0 3px var(--gold) inset;pointer-events:none}
+#banner b{display:block;font-family:var(--display);font-size:26px;line-height:1.05;color:var(--gold);text-shadow:0 3px 0 var(--ink)}
+#banner span{display:block;text-wrap:balance}
+#banner.in{animation:slide .35s ease-out}
+@keyframes slide{0%{transform:translateX(-50%) scale(.7);opacity:0}100%{transform:translateX(-50%) scale(1);opacity:1}}
+
+/* lobby */
+#lobby{position:absolute;inset:0;display:flex;flex-direction:column;pointer-events:none}
+#lobby>*{pointer-events:auto}
+.topbar{display:flex;align-items:center;gap:8px;padding:10px 12px}
+.grow{flex:1;pointer-events:none}
+.pchip{display:flex;align-items:center;gap:8px;background:var(--deep);border:3px solid var(--ink);border-radius:14px;padding:4px 12px 4px 4px;box-shadow:0 4px 0 var(--ink);min-width:0}
+.ava{width:38px;height:38px;border-radius:10px;background:var(--gold);color:var(--ink);border:2px solid var(--ink);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:20px;overflow:hidden;flex:none}
+.ava img{width:100%;height:100%;object-fit:cover}
+#pName{font-size:17px;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px}
+.coins{display:flex;align-items:center;gap:6px;background:var(--ink);border:3px solid var(--ink);border-radius:999px;padding:3px 12px 3px 3px;box-shadow:0 0 0 2px var(--deep2) inset}
+.coins b{font-family:var(--display);font-size:17px;font-variant-numeric:tabular-nums}
+.coins.caps{color:var(--chalk);cursor:pointer;min-height:44px;min-width:52px;justify-content:center;padding:3px 11px 3px 8px;gap:5px;font-family:inherit}
+.topbar .coins{min-height:44px}
+.coins.caps.due{box-shadow:0 0 0 2px var(--go) inset;animation:duepulse 1.2s ease-in-out infinite alternate}
+@keyframes duepulse{0%{box-shadow:0 0 0 2px var(--go) inset}100%{box-shadow:0 0 0 3px var(--gold) inset}}
+.capi{display:flex;color:var(--gum)}
+.pchip{flex-shrink:1;cursor:pointer;color:inherit;font:inherit;min-height:44px}
+.pchip:active{transform:translateY(2px);box-shadow:0 2px 0 var(--ink)}
+.dayfire{display:flex;align-items:center;gap:2px;margin-left:2px;padding:2px 7px 2px 4px;border-radius:999px;background:var(--hot);color:#fff;font-size:13px}
+.dayfire b{font-family:var(--display);font-size:13px}
+@media (max-width:380px){.topbar{gap:4px;padding:10px 10px}.topbar .grow{display:none}.pchip{padding:3px 8px 3px 3px;gap:5px;margin-right:auto}.ava{width:32px;height:32px;font-size:17px}.coins{padding:3px 7px 3px 3px;gap:4px}.coins .coin{width:18px;height:18px;border-width:2px}.coins.caps{padding:3px 7px 3px 6px;min-width:0}.coins b{font-size:14px}#pName{font-size:15px}}
+.home{flex:1;display:flex;flex-direction:column;gap:10px;padding:0 12px 12px;min-height:0;pointer-events:none !important}
+.home>*{pointer-events:auto}
+.logo{align-self:center;text-align:center;font-family:var(--display);font-size:clamp(34px,11vw,48px);line-height:.9;transform:rotate(-3deg);text-shadow:var(--ol);margin-top:4px;pointer-events:none}
+.logo em{display:block;font-style:normal;color:var(--gold)}
+.events{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ev{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;padding:8px 9px 8px 10px;min-height:0;border:3px solid var(--ink);border-radius:14px;cursor:pointer;overflow:hidden;
+  color:#fff;box-shadow:0 5px 0 var(--ed),0 5px 0 3px var(--ink),inset 0 3px 0 rgba(255,255,255,.3);margin-bottom:5px;min-width:0}
+.ev:active{transform:translateY(4px);box-shadow:0 1px 0 var(--ed),0 1px 0 3px var(--ink)}
+.ev.daily{--ed:var(--go-d);background:linear-gradient(160deg,#7ad98f,var(--go))}
+.ev.ninth{--ed:#4a0f08;background:linear-gradient(160deg,#b8321f,#5a160c)}
+/* three tight rows: icon + title, your status, then the world (meta) and the tag. No dead space. */
+.ev .evhead{display:flex;align-items:center;gap:6px;min-width:0;width:100%}
+.ev b{font-family:var(--display);font-size:clamp(12px,4.1vw,16px);line-height:1.05;text-shadow:0 2px 0 var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev small{font-size:13px;line-height:1.15;letter-spacing:.02em;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.ev em{font-style:normal;font-size:11px;line-height:1.15;letter-spacing:.03em;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.ev .evic{width:24px;height:24px;flex:none;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(22,12,46,.3);color:#fff}
+.ev.ninth .evic{background:#f4ecd8;color:var(--ink)}
+.days{display:flex;gap:clamp(2px,.9vw,4px)}
+.days i{width:clamp(6px,2.1vw,9px);height:clamp(6px,2.1vw,9px);border-radius:50%;background:rgba(22,12,46,.28);box-shadow:0 0 0 1.5px var(--ink)}
+.days i.on{background:var(--gold)}
+.days i.bonus{border-radius:2px}
+.days i.next{animation:nextday 1s ease-in-out infinite alternate}
+@keyframes nextday{0%{background:rgba(255,246,224,.3)}100%{background:var(--chalk)}}
+/* tags sit inside the tile now, so nothing collides with the PLAY button */
+.ev .evfoot{display:flex;align-items:center;justify-content:space-between;gap:6px;width:100%;margin-top:2px;min-width:0}
+.ev .tag{margin-left:auto;flex:none;font:700 11px var(--data);font-style:normal;letter-spacing:.1em;background:var(--gold);color:var(--ink);border:2px solid var(--ink);border-radius:8px;padding:2px 6px;white-space:nowrap}
+/* the best streak: a corner ribbon stitched onto the PLAY button */
+.ribbon{position:absolute;right:0;top:14px;width:190px;padding:6px 0;transform:translateX(52px) rotate(36deg);text-align:center;font:700 17px var(--data);font-style:normal;letter-spacing:.12em;background:var(--ink);color:var(--gold);border-top:3px solid var(--gold);border-bottom:3px solid var(--gold);pointer-events:none;line-height:1}
+.ribbon:empty{display:none}
+.ribbonbox{position:absolute;inset:0;overflow:hidden;pointer-events:none;border-radius:inherit}
+.btn.xl{overflow:hidden;position:relative}
+.btn.xl .ballic{display:flex;align-items:center}
+.ev .tag.red{background:var(--hot);color:#fff}
+.ev .tag:empty{display:none}
+.pl{display:flex;flex-direction:column;align-items:flex-start}
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);background:var(--deep);border-top:3px solid var(--ink);padding:6px 6px 8px;gap:4px}
+.tab{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;background:transparent;border:3px solid transparent;border-radius:12px;color:var(--mute);cursor:pointer;font-size:11px;letter-spacing:.04em;min-width:0}
+.tab.sel{background:var(--gold);color:var(--ink);border-color:var(--ink);box-shadow:0 3px 0 var(--gold-d),0 3px 0 3px var(--ink);transform:translateY(-6px)}
+.page{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;gap:10px;margin:0 auto 12px;width:min(100% - 32px,340px);padding:14px 12px 12px;background:var(--deep);border:3px solid var(--ink);border-radius:16px;overflow:hidden}
+.pbody{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px;overflow-y:auto;touch-action:pan-y;margin:0 -12px -12px;padding:0 12px 12px}
+/* one way out of every page and sheet: the round X in the top-right corner */
+.xbtn{position:absolute;right:8px;top:8px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:var(--deep2);color:var(--chalk);border:2px solid var(--ink);cursor:pointer;z-index:2}
+.xbtn:active{transform:translateY(1px)}
+.page .xbtn{top:-8px;right:-2px}
+.sheet .xbtn{top:-16px;right:-16px;width:40px;height:40px;min-width:44px;min-height:44px}
+.rib{align-self:center;font-family:var(--display);font-size:22px;line-height:1;color:#fff;text-shadow:0 3px 0 var(--ink);background:var(--hot);border:3px solid var(--ink);border-radius:10px;padding:7px 18px;box-shadow:0 4px 0 var(--hot-d),0 4px 0 3px var(--ink);margin:-28px 0 6px;text-align:center}
+.rib.gold{background:var(--gold);color:var(--ink);text-shadow:none;box-shadow:0 4px 0 var(--gold-d),0 4px 0 3px var(--ink)}
+.page .rib{margin-top:-4px}
+.note{margin:0;font-size:15px;font-weight:500;line-height:1.25;color:var(--mute)}
+.seg{display:grid;grid-template-columns:repeat(4,1fr);background:var(--ink);border-radius:12px;padding:3px;gap:3px}
+.seg button{background:transparent;border:0;border-radius:9px;min-height:44px;padding:8px 2px;font-size:13px;letter-spacing:.06em;color:var(--mute);cursor:pointer}
+@media (max-width:340px){.seg button{font-size:11px;letter-spacing:.03em;padding:8px 1px}}
+.seg button.sel{background:var(--gold);color:var(--ink)}
+.board{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px}
+.board li{display:grid;grid-template-columns:30px 1fr auto;gap:10px;align-items:center;padding:7px 10px;border-radius:10px;background:var(--deep2);font-size:18px;font-variant-numeric:tabular-nums}
+.board li.me{box-shadow:0 0 0 3px var(--gold) inset}
+.board .rk{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:14px;background:var(--ink)}
+.board li:nth-child(1) .rk{background:var(--gold);color:var(--ink)}
+.board li:nth-child(2) .rk{background:#cfd6e6;color:var(--ink)}
+.board li:nth-child(3) .rk{background:#d08a4e;color:var(--ink)}
+.board .in{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* the short board on the results card: three above you, you, one below */
+.oboard{display:flex;flex-direction:column;gap:4px}
+.oboard .lbl{text-align:center}
+.board.mini{gap:3px}
+.board.mini li{grid-template-columns:22px 1fr auto;gap:8px;padding:3px 8px;font-size:14px;border-radius:8px}
+.board.mini .rk{width:20px;height:20px;font-size:11px}
+.board.mini li.gap{background:none;justify-items:center;padding:0;font-size:12px;opacity:.6}
+.board.mini li.mock .in{opacity:.9}
+.board .st{font-family:var(--display);color:var(--gold)}
+.board li.gb .in::after{content:"GOLDEN BAT";margin-left:8px;font-size:11px;letter-spacing:.1em;color:var(--ink);background:var(--gold);border-radius:4px;padding:1px 5px}
+.board .buys{font-style:normal;margin-left:6px;font-size:11px;letter-spacing:.06em;color:var(--ink);background:var(--gold);border-radius:999px;padding:1px 6px}
+.board li.empty{display:block;font-weight:500;font-size:16px;color:var(--mute);background:transparent;padding:6px 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.item{position:relative;display:flex;flex-direction:column;gap:4px;background:var(--deep2);border:3px solid var(--ink);border-radius:12px;padding:8px;min-width:0}
+.item .art{height:62px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--ink)}
+.item b{font-family:var(--display);font-size:14px;line-height:1.1}
+.item small{font-size:13px;font-weight:500;color:var(--mute);line-height:1.15}
+.item .price{display:flex;align-items:center;gap:5px;font-family:var(--display);font-size:14px;margin-top:2px}
+.item .price .coin{width:16px;height:16px;border-width:2px}
+.item .soon{position:absolute;top:6px;right:6px;display:flex;align-items:center;gap:3px;font-size:11px;letter-spacing:.1em;background:var(--ink);color:var(--chalk);border-radius:6px;padding:2px 6px}
+.pcard{display:flex;gap:10px;align-items:center;background:var(--deep2);border:3px solid var(--ink);border-radius:12px;padding:8px;text-align:left;color:inherit;width:100%;min-width:0}
+button.pcard{cursor:pointer;box-shadow:0 4px 0 var(--ink);margin-bottom:4px}
+button.pcard:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.pcard img{width:52px;height:52px;border-radius:12px;border:3px solid var(--ink);flex:none;background:var(--ink)}
+.pcard div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.pcard b{font-family:var(--display);font-size:15px;line-height:1.1}
+.pcard small{font-size:14px;font-weight:500;color:var(--mute);line-height:1.15}
+.pcard em{font-style:normal;font-size:12px;letter-spacing:.1em;color:var(--mute)}
+.pcard.ko{box-shadow:0 0 0 3px var(--gold) inset}
+.pcard.ko em{color:var(--gold)}
+.plist{display:flex;flex-direction:column;gap:8px}
+.seg.two{grid-template-columns:1fr 1fr}
+#awGoals{display:flex;flex-direction:column;gap:10px}
+.award{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;background:var(--deep2);border:3px solid var(--ink);border-radius:12px;padding:8px 10px;min-width:0}
+.award div{display:flex;flex-direction:column;gap:3px;min-width:0}
+.award b{font-family:var(--display);font-size:14px;line-height:1.1}
+.award small{font-size:13px;font-weight:500;color:var(--mute);line-height:1.2}
+.award .pay{display:flex;align-items:center;gap:3px;font-family:var(--display);font-size:14px;color:var(--go)}
+.award.got{box-shadow:0 0 0 3px var(--go) inset}
+.award.got .gbar{display:none}
+.gbar{display:block;height:5px;border-radius:3px;background:rgba(255,246,224,.14);overflow:hidden}
+.gbar i{display:block;height:100%;background:var(--gold);border-radius:3px}
+/* challenge code entry and display */
+.box{background:var(--deep2);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px}
+.coderow{display:flex;gap:8px;align-items:center}
+.coderow input{flex:1;min-width:0;height:48px;border-radius:12px;border:3px solid var(--ink);background:var(--chalk);color:var(--ink);font:700 20px var(--data);letter-spacing:.12em;text-transform:uppercase;padding:0 10px;user-select:text;-webkit-user-select:text}
+.coderow .btn{width:auto;flex:none;min-width:64px;font-size:16px}
+.coderow .code{flex:1;min-width:0;font:700 22px var(--data);letter-spacing:.12em;background:var(--deep2);border-radius:10px;padding:10px;text-align:center;user-select:text;-webkit-user-select:text}
+
+/* overlays */
+.ovl{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:40px 16px 16px;background:rgba(11,7,22,.72);overflow-y:auto;touch-action:pan-y}
+.sheet{position:relative;width:min(84%,300px);flex:none;display:flex;flex-direction:column;gap:10px;background:var(--deep);border:3px solid var(--ink);border-radius:18px;padding:14px;box-shadow:0 6px 0 var(--ink),0 0 0 3px var(--deep2) inset}
+.acts{display:flex;gap:10px}
+.acts .btn{flex:1;min-width:0;font-size:clamp(12px,3.9vw,15px);padding:8px 6px;gap:5px}
+.acts .btn.wide{flex:1;font-size:clamp(13px,4.4vw,17px)}
+.acts .btn.sq{flex:none;width:52px;padding:0}
+.vrow{display:grid;grid-template-columns:24px 52px 1fr 30px;align-items:center;gap:8px;background:var(--deep2);border-radius:12px;padding:6px 10px}
+.vrow .vic{display:flex;color:var(--gold)}
+.vrow b{font-family:var(--display);font-size:14px;text-align:right;font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;min-width:0;accent-color:var(--gold);height:32px;touch-action:none}
+.tog{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:6px 12px;background:var(--go);color:var(--ink);border:3px solid var(--ink);border-radius:12px;cursor:pointer;box-shadow:0 4px 0 var(--go-d),0 4px 0 3px var(--ink);margin-bottom:4px}
+.tog b{font-size:14px;letter-spacing:.08em}
+.tog small{font-size:13px;letter-spacing:.1em}
+.tog.off{background:var(--gray);box-shadow:0 4px 0 var(--gray-d),0 4px 0 3px var(--ink)}
+.link{background:none;border:0;padding:8px 4px;min-height:44px;font:500 14px var(--data);color:var(--mute);text-decoration:underline;cursor:pointer}
+.msg.lead{color:var(--chalk);font-size:17px;text-wrap:balance}
+.score{text-align:center;line-height:1}
+.score.small b{font-size:44px}
+.score.small span{font-size:13px;letter-spacing:.08em}
+/* the pizza line on the strike-three sheet: icon, count, then the words */
+.msg.wallet{display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:wrap}
+.msg.wallet b{font-family:var(--display);font-size:15px;color:var(--gum)}
+.msg.wallet .capi{color:var(--gum)}
+/* the quiet way out: a text link with room above it, so a thumb slip off the big button does not end the run */
+.link.quiet{margin-top:6px;color:var(--mute);text-decoration:underline;font-size:14px;min-height:44px}
+#over.record .sheet{box-shadow:0 6px 0 var(--ink),0 0 0 3px var(--gold) inset,0 0 40px 6px rgba(255,200,61,.55)}
+#over.record #overHead{animation:stamp2 .5s cubic-bezier(.2,1.6,.4,1) both}
+#over.record .score b{animation:glow 1.2s ease-in-out infinite alternate}
+@keyframes stamp2{0%{transform:scale(2.4) rotate(-10deg);opacity:0}100%{transform:scale(1.12) rotate(-3deg);opacity:1}}
+@keyframes glow{0%{filter:drop-shadow(0 0 0 rgba(255,200,61,0))}100%{filter:drop-shadow(0 0 14px rgba(255,200,61,.9))}}
+#confetti{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+#confetti i{position:absolute;top:-16px;width:9px;height:14px;border-radius:2px;animation:fall linear forwards}
+@keyframes fall{0%{transform:translate(0,0) rotate(0)}100%{transform:translate(var(--drift),110vh) rotate(var(--spin))}}
+.score b{display:block;font-family:var(--display);font-size:76px;line-height:.95;color:var(--gold);text-shadow:var(--ol);font-variant-numeric:tabular-nums}
+.score span{font-family:var(--display);font-size:17px}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.fact{position:relative;background:var(--deep2);border-radius:10px;padding:8px 8px 6px;display:flex;flex-direction:column;gap:2px;min-width:0;overflow:hidden;text-align:center}
+.fact .fic{display:flex;justify-content:center;color:var(--gold);opacity:.9;margin-bottom:1px}
+.fact .lbl{letter-spacing:.04em;font-size:clamp(10px,3vw,12px)}
+.fact b{font-family:var(--display);font-size:clamp(12px,4vw,17px);line-height:1.1;white-space:nowrap;font-variant-numeric:tabular-nums}
+/* the rewards row: what this run paid, as chips; the awards chip opens the list */
+.chips{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:5px;min-height:40px;padding:4px 12px 4px 8px;border-radius:999px;background:var(--deep2);font-family:var(--display);font-size:16px;color:var(--chalk);line-height:1;border:0}
+.chip .coin{width:18px;height:18px;border-width:2px}
+.chip.caps{color:var(--gum)}
+.chip.caps.claim{color:var(--ink)}
+.chip.awards{color:var(--gold);cursor:pointer;padding-right:9px;font:inherit;font-family:var(--display);font-size:16px}
+.chip.awards span{font:700 11px var(--data);letter-spacing:.08em;color:var(--chalk);opacity:.8}
+.chip.awards[aria-expanded="true"]{background:var(--gold);color:var(--ink)}
+.chip.awards[aria-expanded="true"] span{color:var(--ink);opacity:1}
+.chip.rank{color:var(--gold);font-size:14px;padding:5px 10px}
+.chip.rank:empty{display:none}
+#gains{margin:-2px 0 0;font-size:13px;line-height:1.25;color:var(--go);text-align:center;text-wrap:balance}
+/* the pitch that ended it */
+.last{display:flex;align-items:center;gap:9px;background:var(--deep2);border-radius:10px;padding:6px 9px;min-width:0}
+.last img{width:38px;height:38px;border-radius:10px;border:2px solid var(--ink);background:var(--ink);flex:none}
+.last div{display:flex;flex-direction:column;gap:1px;min-width:0;text-align:left}
+.last b{font-family:var(--display);font-size:13px;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.last span{font-size:13px;line-height:1.2;font-weight:600;opacity:.9}
+.statrows{display:flex;flex-direction:column;gap:4px}
+.statrows div{display:flex;justify-content:space-between;align-items:center;background:var(--deep2);border-radius:9px;padding:6px 10px;font-size:13px;letter-spacing:.04em}
+.statrows b{font-family:var(--display);font-size:14px;color:var(--gold)}
+/* lifetime numbers against one pitcher, under his card */
+.pstats{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:6px 0 2px}
+.pstats div{display:flex;flex-direction:column;align-items:center;gap:1px;background:rgba(22,12,46,.35);border-radius:8px;padding:5px 2px;min-width:0}
+.pstats b{font-family:var(--display);font-size:13px;color:var(--gold)}
+.pstats span{font-size:10px;letter-spacing:.06em;opacity:.85}
+.pwrap{display:flex;flex-direction:column}
+.pcard .chev{margin-left:auto;flex:none;display:flex;color:var(--mute);transition:transform .2s}
+button.pcard{cursor:pointer}
+.pcard.open .chev{transform:rotate(90deg)}
+.track{display:flex;flex-direction:column;gap:5px;background:var(--deep2);border-radius:10px;padding:6px 9px}
+.trow{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;letter-spacing:.04em;min-width:0}
+.trow b{font-family:var(--display);font-size:13px;white-space:nowrap}
+.trow span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.trow .gbar{flex:none;width:72px}
+#league span{color:var(--gold)}
+.track.up{box-shadow:0 0 0 2px var(--gold) inset}
+.track.up #league span{font-family:var(--display)}
+.goalrow{font-size:12px;opacity:.9}
+#cause{margin:0;font-size:14px;font-weight:600;line-height:1.25;text-align:center;text-wrap:balance}
+.msg{margin:0;font-size:15px;font-weight:500;color:var(--mute);text-align:center}
+.msg:empty{display:none}
+.res{position:relative}
+#cardImg{width:62%;align-self:center;border-radius:10px;border:3px solid var(--ink)}
+.cap{margin:0;background:var(--deep2);border-radius:10px;padding:8px 10px;font-size:15px;font-weight:500;line-height:1.25;user-select:text;-webkit-user-select:text}
+#noGL{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font-size:20px;background:var(--ink)}
+/* short phones: tighten the sheets so nothing needs scrolling */
+@media (max-height:620px){.ovl{padding:18px 10px 6px}.sheet{gap:6px;padding:10px}.board.mini li{padding:2px 8px;font-size:13px}.oboard{gap:2px}.last{padding:3px 9px}.last img{width:30px;height:30px}.facts .fact{padding:5px 6px 4px}.score b{font-size:54px}.track{padding:4px 9px;gap:3px}.note{font-size:14px;line-height:1.2}.score b{font-size:60px}.link{min-height:40px;padding:4px}#cardImg{width:44%}.coderow .code{font-size:19px;padding:8px}}
+@media (prefers-reduced-motion:reduce){#call.show,#tier.on,#banner.in,#hStreak.bump,#verdict,#tap.show,#over.record #overHead,#hrTag.tick,#hrTag.tier,#hrTag.drop{animation-duration:.01s}.days i.next{animation:none}#vig.beat,#over.record .score b{animation:none}}

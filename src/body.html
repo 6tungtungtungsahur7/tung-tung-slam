@@ -1,0 +1,205 @@
+<div id="stage">
+  <canvas id="gl" aria-label="Ballpark. Tap to swing when the ring meets the circle."></canvas>
+  <div id="vig"></div>
+  <div id="flash"></div>
+  <div id="cue"><div id="tgt" hidden></div><div id="ring" hidden></div><div id="tap"></div><div id="verdict" hidden></div></div>
+  <div id="bubs"></div>
+
+  <div id="hud" hidden>
+    <div class="bug" id="bug">
+      <div class="bl"><span id="vs">vs ROOKIE</span><div class="dots"><div id="pips" aria-hidden="true"></div><div id="ks" aria-label="Strikes"></div></div></div>
+      <div class="br"><span class="lbl" id="hLbl">Streak</span><b id="hStreak">0</b></div>
+    </div>
+    <button class="rbtn" id="pauseBtn" type="button" aria-label="Pause" data-ic="pause" data-sz="24"></button>
+  </div>
+  <div id="hrTag" hidden><span data-ic="flame" data-sz="18"></span><b>×<span id="hrN">3</span></b><em id="hrName">HOT BAT</em></div>
+  <div id="call"><b></b><span></span></div>
+  <div id="gains3d" aria-hidden="true"></div>
+  <pre id="perf" hidden></pre>
+  <div id="toast" hidden><span class="tk" id="toastK">ACHIEVEMENT</span><b id="toastT"></b><em id="toastS"></em></div>
+  <div id="dist" hidden><div id="distLbl">GRAND SLAM</div><div id="distN">0<small>FT</small></div><div id="tier"></div></div>
+  <div id="banner" hidden><span class="lbl" id="banLbl">Now pitching</span><b id="banName"></b><span id="banTag"></span></div>
+
+  <section id="lobby">
+    <header class="topbar">
+      <button class="pchip" id="profileBtn" type="button" aria-label="Your profile"><span class="ava" id="pAva">Y</span><b id="pName">You</b><span class="dayfire" id="dayFire" hidden title="Days in a row"><i data-ic="flame" data-sz="14"></i><b id="dayFireN">0</b></span></button>
+      <span class="grow"></span>
+      <div class="coins" aria-label="Coins"><i class="coin"></i><b id="coinN">0</b></div>
+      <button class="coins caps" id="capsBtn" type="button" aria-label="Pizza: open awards"><i class="capi" data-ic="pizza" data-sz="18"></i><b id="capN">0</b></button>
+      <button class="rbtn" id="gearBtn" type="button" aria-label="Settings" data-ic="gear" data-sz="26"></button>
+    </header>
+
+    <main class="home" id="pgHome">
+      <div class="logo">TUNG TUNG<em>SLAM</em></div>
+      <span class="grow"></span>
+      <div class="events">
+        <button class="ev daily" id="dailyBtn" type="button"><span class="evhead"><span class="evic" data-ic="sun" data-sz="18"></span><b>DAILY</b></span><small id="dailySub">Same pitches for all</small><span class="evfoot"><em id="dailyMeta"></em><i class="tag" id="dailyTag"></i></span></button>
+        <button class="ev ninth" id="ninthBtn" type="button"><span class="evhead"><span class="evic" data-ic="bat" data-sz="18"></span><b>BOTTOM 9TH</b></span><small id="ninthSub">Win the Golden Bat</small><span class="evfoot"><em id="ninthMeta"></em><i class="tag red" id="ninthTag">1 SHOT</i></span></button>
+      </div>
+      <button class="btn xl" id="playBtn" type="button"><span class="ballic" data-ic="ball" data-sz="46"></span><span class="pl">PLAY<small>STREAK RUN</small></span><span class="ribbonbox"><i class="ribbon" id="bestTag"></i></span></button>
+    </main>
+
+    <main class="page" id="pgShop" hidden>
+      <div class="rib gold">SHOP</div><button class="xbtn" type="button" data-close="page" aria-label="Back to play" data-ic="x" data-sz="20"></button>
+      <div class="pbody">
+      <p class="note">Home runs and knockouts earn coins. Bats, parks and batters open soon.</p>
+      <span class="lbl">Bats</span><div class="grid2" id="shopBats"></div>
+      <span class="lbl">Ballparks</span><div class="grid2" id="shopParks"></div>
+      <span class="lbl">Batters</span><div class="grid2" id="shopTeams"></div>
+    
+      </div>
+    </main>
+    <main class="page" id="pgAwards" hidden>
+      <div class="rib gold">AWARDS</div><button class="xbtn" type="button" data-close="page" aria-label="Back to play" data-ic="x" data-sz="20"></button>
+      <div class="pbody">
+      <div class="seg two">
+        <button type="button" class="sel" data-awards="goals">ACHIEVEMENTS</button>
+        <button type="button" data-awards="cards">PITCHERS</button>
+      </div>
+      <div id="awGoals">
+        <button class="btn green" id="pgClaim" type="button" hidden><span data-ic="pizza" data-sz="22"></span><span id="pgClaimT">CLAIM</span></button>
+        <p class="note" id="capsNote"></p>
+        <div class="plist" id="awardList"></div>
+      </div>
+      <div class="plist" id="cardList" hidden></div>
+    
+      </div>
+    </main>
+    <main class="page" id="pgRanks" hidden>
+      <div class="rib">RANKS</div><button class="xbtn" type="button" data-close="page" aria-label="Back to play" data-ic="x" data-sz="20"></button>
+      <div class="pbody">
+      <div class="seg">
+        <button type="button" class="sel" data-board="streak">STREAK</button>
+        <button type="button" data-board="bomb">LONG BALL</button>
+        <button type="button" data-board="daily">DAILY</button>
+        <button type="button" data-board="ninth">9TH</button>
+      </div>
+      <p class="note" id="holderMsg"></p>
+      <ol class="board" id="boardM"></ol>
+    
+      </div>
+    </main>
+    <main class="page" id="pgPractice" hidden>
+      <div class="rib">PRACTICE</div><button class="xbtn" type="button" data-close="page" aria-label="Back to play" data-ic="x" data-sz="20"></button>
+      <div class="pbody">
+      <div class="box duel">
+        <label class="lbl" for="codeIn">Challenge code from a friend</label>
+        <div class="coderow"><input id="codeIn" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="12" placeholder="ABC1234-22"><button class="btn" id="codeGo" type="button">GO</button></div>
+        <p class="msg" id="codeMsg"></p>
+      </div>
+      <p class="note">Or pick a pitcher. Nothing posts and nothing is earned.</p>
+      <div class="plist" id="pracList"></div>
+    
+      </div>
+    </main>
+
+    <nav class="tabs" aria-label="Sections">
+      <button class="tab" type="button" data-tab="Shop" data-ic="bag" data-sz="26">SHOP</button>
+      <button class="tab" type="button" data-tab="Awards" data-ic="cup" data-sz="26">AWARDS</button>
+      <button class="tab sel" type="button" data-tab="Home" data-ic="ball" data-sz="26">PLAY</button>
+      <button class="tab" type="button" data-tab="Ranks" data-ic="podium" data-sz="26">RANKS</button>
+      <button class="tab" type="button" data-tab="Practice" data-ic="aim" data-sz="26">PRACTICE</button>
+    </nav>
+  </section>
+
+  <section id="sheet" class="ovl" hidden>
+    <div class="sheet">
+      <div class="rib" id="shTitle">PAUSED</div><button class="xbtn" type="button" id="sheetX" aria-label="Close" data-ic="x" data-sz="20"></button>
+      <button class="btn xl" id="resumeBtn" type="button">RESUME</button>
+      <div class="vrow"><span class="vic" data-ic="sound"></span><label class="lbl" for="volSound">Sound</label><input type="range" id="volSound" min="0" max="100" step="1" value="80"><b id="volSoundN">80</b></div>
+      <div class="vrow"><span class="vic" data-ic="music"></span><label class="lbl" for="volMusic">Music</label><input type="range" id="volMusic" min="0" max="100" step="1" value="60"><b id="volMusicN">60</b></div>
+      <button class="tog row" id="tHap" type="button" data-ic="vib"><b>HAPTICS</b><small>ON</small></button>
+      <button class="tog row" id="awardsBtn" type="button" data-ic="cup"><b>AWARDS</b><small id="awardsBtnN">Goals</small></button>
+      <button class="tog row" id="statsBtn" type="button" data-ic="star"><b>STATS</b><small>Career</small></button>
+      <div class="acts" id="runActs">
+        <button class="btn blue" id="restartBtn" type="button" data-ic="redo">RESTART</button>
+        <button class="btn red" id="quitBtn" type="button" data-ic="home">HOME</button>
+      </div>
+      <p class="msg" id="pauseMsg"></p>
+      <button class="link" id="recalBtn" type="button">Swings reading early or late? Redo the warm-up</button>
+      <button class="link" id="perfBtn" type="button">Show performance numbers</button>
+      <button class="btn gray" id="closeBtn" type="button">CLOSE</button>
+    </div>
+  </section>
+
+  <section id="chance" class="ovl" hidden>
+    <div class="sheet">
+      <div class="rib">STRIKE THREE</div>
+      <div class="last" id="chanceWho"><img id="chanceFace" alt=""><div><b id="chancePitcher"></b><span id="chanceHow"></span></div></div>
+      <div class="score small"><b id="chanceStreak">0</b><span>IN A ROW ON THE LINE</span></div>
+      <button class="btn green xl" id="reviveBtn" type="button"><span class="capi" data-ic="pizza" data-sz="30"></span><span class="pl"><span id="reviveMain">SECOND CHANCE</span><small id="reviveSub">1 SLICE</small></span></button>
+      <p class="msg wallet" id="chanceNote"><span class="capi" data-ic="pizza" data-sz="15"></span><b id="chanceHave">0</b><span id="chanceNoteT"></span></p>
+      <button class="link quiet" id="endBtn" type="button">End the run</button>
+    </div>
+  </section>
+
+  <section id="over" class="ovl" hidden>
+    <div id="confetti" aria-hidden="true"></div>
+    <div class="sheet res">
+      <div class="rib" id="overHead">STRUCK OUT</div>
+      <div class="score"><b id="oStreak">0</b><span id="oUnit">IN A ROW</span></div>
+      <div class="facts">
+        <div class="fact"><i class="fic" data-ic="park" data-sz="16"></i><span class="lbl" id="f1L">Longest</span><b id="f1">0</b></div>
+        <div class="fact"><i class="fic" data-ic="flame" data-sz="16"></i><span class="lbl" id="f2L">HR streak</span><b id="f2">0</b></div>
+        <div class="fact"><i class="fic" data-ic="ko" data-sz="16"></i><span class="lbl" id="f3L">Knockouts</span><b id="f3">0</b></div>
+      </div>
+      <div class="chips" id="earnRow">
+        <span class="chip"><i class="coin"></i><b id="oCoins">+0</b></span>
+        <button class="chip caps claim" id="oCapsBox" type="button" hidden><i class="capi" data-ic="pizza" data-sz="18"></i><b id="oCaps">+0</b><span id="oCapsT">CLAIM</span></button>
+        <button class="chip awards" id="oAwardsBtn" type="button" hidden aria-expanded="false"><i data-ic="cup" data-sz="16"></i><b id="oAwardsN">0</b><span>AWARDS</span></button>
+        <span class="chip rank" id="rankMsg"></span>
+      </div>
+      <p id="gains" hidden></p>
+      <div class="last" id="lastPitch" hidden><img id="lastFace" alt=""><div><b id="lastWho"></b><span id="lastWhat"></span></div></div>
+      <p id="cause" hidden></p>
+      <div class="meter" id="oMeter"></div>
+      <div class="track" id="track" hidden>
+        <div class="trow" id="league" hidden><b id="leagueName">ROOKIE LEAGUE</b><span id="leagueNote"></span></div>
+        <div class="trow goalrow" id="goal" hidden><span id="goalText"></span><i class="gbar"><i id="goalBar"></i></i></div>
+      </div>
+      <div class="oboard" id="oBoard" hidden><span class="lbl" id="oBoardL">TODAY</span><ol class="board mini" id="oBoardList"></ol></div>
+      <p class="msg" id="postMsg"></p>
+      <div class="acts">
+        <button class="btn blue sq" id="homeBtn" type="button" aria-label="Home" data-ic="home" data-sz="24"></button>
+        <button class="btn blue sq" id="shareBtn" type="button" aria-label="Share" data-ic="share" data-sz="24"></button>
+        <button class="btn wide" id="againBtn" type="button">PLAY AGAIN</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="awsheet" class="ovl" hidden>
+    <div class="sheet">
+      <div class="rib gold">AWARDS</div><button class="xbtn" type="button" id="awX" aria-label="Close" data-ic="x" data-sz="20"></button>
+      <button class="btn green" id="awClaim" type="button" hidden><span data-ic="pizza" data-sz="22"></span><span id="awClaimT">CLAIM</span></button>
+      <div class="plist scroll" id="awList"></div>
+      <button class="btn gray" id="awClose" type="button">CLOSE</button>
+    </div>
+  </section>
+
+  <section id="stats" class="ovl" hidden>
+    <div class="sheet">
+      <div class="rib">CAREER</div><button class="xbtn" type="button" id="statsX" aria-label="Close" data-ic="x" data-sz="20"></button>
+      <div class="facts" id="statFacts"></div>
+      <div class="statrows" id="statRows"></div>
+      <button class="btn gray" id="statsClose" type="button">CLOSE</button>
+    </div>
+  </section>
+
+  <section id="share" class="ovl" hidden>
+    <div class="sheet">
+      <div class="rib gold">SHARE</div><button class="xbtn" type="button" id="shareX" aria-label="Close" data-ic="x" data-sz="20"></button>
+      <img id="cardImg" alt="Share card for this run">
+      <span class="lbl">Caption</span>
+      <p class="cap" id="capTxt"></p>
+      <div class="coderow" id="duelRow"><span class="code" id="duelCode"></span><button class="btn" id="codeCopy" type="button">COPY CODE</button></div>
+      <div class="acts">
+        <button class="btn" id="saveBtn" type="button">SAVE IMAGE</button>
+        <button class="btn blue" id="copyBtn" type="button">COPY CAPTION</button>
+      </div>
+      <p class="msg" id="shareMsg"></p>
+      <button class="btn gray" id="shareClose" type="button">CLOSE</button>
+    </div>
+  </section>
+  <div id="noGL" hidden>The 3D engine did not load. Reload the page to try again.</div>
+</div>
+

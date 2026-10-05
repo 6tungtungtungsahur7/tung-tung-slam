@@ -1,0 +1,18 @@
+{
+  "name": "tung-tung-slam",
+  "private": true,
+  "description": "One-tap baseball streak game. See README.md.",
+  "scripts": {
+    "build": "node build.js",
+    "build:offline": "node build.js --offline",
+    "dev": "node serve.js",
+    "test": "node build.js && node tests/sim.js && node tests/runsim.js && node tests/awards.js && node tests/pace.js && node tests/frame.js && node tests/audio.js && node tests/sweep.js && node tests/play.js",
+    "test:fast": "node build.js && node tests/sim.js && node tests/runsim.js && node tests/awards.js"
+  },
+  "devDependencies": {
+    "@fontsource/barlow-condensed": "^5.0.0",
+    "@fontsource/bungee": "^5.0.0",
+    "playwright": "^1.50.0",
+    "three": "0.128.0"
+  }
+}
